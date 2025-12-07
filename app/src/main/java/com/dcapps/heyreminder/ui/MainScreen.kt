@@ -3,6 +3,7 @@ package com.dcapps.heyreminder.ui
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -45,6 +47,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 // RectangleShape import removed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -66,7 +69,7 @@ fun MainScreen() {
 
     // Renkler
     val backgroundColor = colorResource(R.color.white_background)
-    val accentGreen     = colorResource(R.color.accent_color)
+    val accentGray    = colorResource(R.color.accent_color)
     val textColor       = colorResource(R.color.text_color)
 
     if (showCreate) {
@@ -79,7 +82,7 @@ fun MainScreen() {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { showCreate = true },
-                    containerColor = accentGreen
+                    containerColor = accentGray
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -95,33 +98,43 @@ fun MainScreen() {
                         .padding(padding)
                         .background(backgroundColor)
                 ) {
-                    // HEADER (1/4 ekran)
-                    BoxWithConstraints(
+                    // HEADER with centered logo
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f)
-                            .background(accentGreen),
-                        contentAlignment = Alignment.BottomStart
+                            .height(240.dp)
+                            .background(accentGray),
+                        contentAlignment = Alignment.Center
                     ) {
-                        // Adjust header font size for small screens
-                        val headerFontSize = if (maxWidth < 420.dp) 28.sp else 42.sp
-                        val count = reminders.size
-                        val reminderWord = if (count == 1) "reminder" else "reminders"
-                        Text(
-                            text = "Hey 👋\nYou have $count $reminderWord.",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = headerFontSize,
-                            color = textColor,
-                            modifier = Modifier
-                                .padding(start = 24.dp, end = 24.dp, bottom = 16.dp)
+                        Image(
+                            painter = painterResource(id = R.drawable.heyreminder_splash),
+                            contentDescription = "Header logo",
+                            modifier = Modifier.size(148.dp)
                         )
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            val count = reminders.size
+                            val reminderWord = if (count == 1) "reminder" else "reminders"
+                            Text(
+                                text = "You have $count $reminderWord.",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 28.sp,
+                                color = textColor
+                            )
+                        }
                     }
 
-                    // LİSTE (3/4 ekranın ortası)
+
+
+                    // LİSTE
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(3f)
+                            .weight(1f)
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         itemsIndexed(reminders) { index, reminder ->
@@ -156,7 +169,7 @@ fun MainScreen() {
                                     val direction = dismissState.dismissDirection
                                     if (direction != null) {
                                         val color = when (direction) {
-                                            DismissDirection.StartToEnd -> accentGreen
+                                            DismissDirection.StartToEnd -> accentGray
                                             DismissDirection.EndToStart -> Color.Red
                                             else -> Color.Transparent
                                         }
@@ -205,13 +218,23 @@ fun MainScreen() {
                                                 )
                                                 .padding(vertical = 12.dp, horizontal = 16.dp)
                                         ) {
-                                            Text(
-                                                text = reminder.text,
-                                                color = textColor,
-                                                fontSize = 18.sp,
-                                                fontWeight = FontWeight.SemiBold,
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
                                                 modifier = Modifier.padding(bottom = 4.dp)
-                                            )
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(8.dp)
+                                                        .background(Color.Red, shape = CircleShape)
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = reminder.text,
+                                                    color = textColor,
+                                                    fontSize = 18.sp,
+                                                    fontWeight = FontWeight.SemiBold
+                                                )
+                                            }
                                             val daysLabels = listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
                                             val dayText = if (reminder.days.size == 7) {
                                                 "Everyday"

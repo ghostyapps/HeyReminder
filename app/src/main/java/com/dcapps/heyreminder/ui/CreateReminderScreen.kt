@@ -3,6 +3,7 @@ package com.dcapps.heyreminder.ui
 import com.dcapps.heyreminder.R
 
 import android.app.TimePickerDialog
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -11,9 +12,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dcapps.heyreminder.data.Reminder
@@ -28,8 +31,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.border
 import androidx.activity.compose.BackHandler
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.clip
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,6 +69,13 @@ fun CreateReminderScreen(
     val accentGreen = colorResource(R.color.accent_color)
     val bgColor = colorResource(R.color.white_background)
     val textColor = colorResource(R.color.text_color)
+    val headerColor = colorResource(R.color.header_background)
+
+    // Set status bar (menubar) color to header_background
+    SideEffect {
+        val window = (context as android.app.Activity).window
+        window.statusBarColor = headerColor.toArgb()
+    }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -67,92 +83,184 @@ fun CreateReminderScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(bgColor)
-            .padding(16.dp)
     ) {
-        // Hatırlatma metni girişi
-        TextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text("Reminder text", color = textColor) },
-            modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = bgColor,
-                focusedIndicatorColor = accentGreen,
-                cursorColor = accentGreen
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Haftanın günlerini seçme bölümü
-        Row(
+        // HEADER with centered logo (same as MainScreen)
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .height(240.dp)
+                .background(colorResource(R.color.header_background)),
+            contentAlignment = Alignment.Center
         ) {
-            dayLabels.forEachIndexed { index, label ->
-                val dayValue = daysOfWeek[index]
-                val isSelected = selectedDays.contains(dayValue)
+            Image(
+                painter = painterResource(id = R.drawable.heyreminder_splash),
+                contentDescription = "Header logo",
+                modifier = Modifier.size(148.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = if (existing != null) "Edit reminder" else "Create a new reminder",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = textColor
+                )
+            }
+        }
 
-                Box(
+        // Content area under header
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+
+            // Main content card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = bgColor)
+            ) {
+                Column(
                     modifier = Modifier
-                        .size(48.dp)
-                        .border(
-                            width = 2.dp,
-                            color = if (isSelected) accentGreen else Color.Gray,
-                            shape = RoundedCornerShape(6.dp)
-                        )
-                        .background(
-                            color = if (isSelected) accentGreen.copy(alpha = 0.2f) else Color.Transparent,
-                            shape = RoundedCornerShape(6.dp)
-                        )
-                        .clickable {
-                            if (isSelected) selectedDays.remove(dayValue)
-                            else selectedDays.add(dayValue)
-                        },
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(label, color = textColor)
-                        if (isSelected) {
-                            Text("✓", color = textColor)
+                    // Reminder text section
+                    Text(
+                        text = "What do you want to remember?",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = textColor.copy(alpha = 0.8f)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    TextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        placeholder = { Text("Take my pills", color = textColor.copy(alpha = 0.4f)) },
+                        modifier = Modifier
+                            .border(
+                                width = 2.dp,
+                                color = textColor,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .fillMaxWidth(),
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = bgColor,
+                            focusedIndicatorColor = accentGreen,
+                            unfocusedIndicatorColor = accentGreen.copy(alpha = 0.2f),
+                            cursorColor = accentGreen
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Days of week section
+                    Text(
+                        text = "How often do you want to receive this?",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = textColor.copy(alpha = 0.8f)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        dayLabels.forEachIndexed { index, label ->
+                            val dayValue = daysOfWeek[index]
+                            val isSelected = selectedDays.contains(dayValue)
+
+                            Box(
+                                modifier = Modifier
+                                    .width(40.dp)
+                                    .height(40.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .border(
+                                        width = 2.dp,
+                                        color = if (isSelected) Color.Red else Color.LightGray,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .background(
+                                        color = if (isSelected) Color.Red.copy(alpha = 0.25f) else Color.Transparent,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .clickable {
+                                        if (isSelected) selectedDays.remove(dayValue)
+                                        else selectedDays.add(dayValue)
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = label,
+                                    color = textColor,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Time section
+                    Text(
+                        text = "At what time exactly?",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = textColor.copy(alpha = 0.8f)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                TimePickerDialog(
+                                    context,
+                                    { _, h, m ->
+                                        hour = h
+                                        minute = m
+                                    },
+                                    hour,
+                                    minute,
+                                    true
+                                ).show()
+                            },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = accentGreen.copy(alpha = 0.08f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "%02d:%02d".format(hour, minute),
+                                color = textColor,
+                                fontSize = 18.sp
+                            )
+                            Text(
+                                text = "Change",
+                                color = textColor,
+                                style = MaterialTheme.typography.labelMedium
+                            )
                         }
                     }
                 }
             }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Saat seçme butonu (analog picker)
-        Button(
-            onClick = {
-                TimePickerDialog(
-                    context,
-                    { _, h, m ->
-                        hour = h
-                        minute = m
-                    },
-                    hour,
-                    minute,
-                    true
-                ).show()
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = accentGreen),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                "Pick Time: %02d:%02d".format(hour, minute),
-                color = textColor,
-                fontSize = 18.sp
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        // Kaydet/Güncelle ve İptal butonları
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+            // Primary action button
             Button(
                 onClick = {
                     coroutineScope.launch {
@@ -172,20 +280,40 @@ fun CreateReminderScreen(
                         onBack()
                     }
                 },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = accentGreen)
+                enabled = text.isNotBlank() && selectedDays.isNotEmpty(),
+                modifier = Modifier
+                    .fillMaxWidth(0.75f)
+                    .align(Alignment.CenterHorizontally),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(R.color.light_accent),
+                    disabledContainerColor = colorResource(R.color.light_accent).copy(alpha = 0.5f),
+                    contentColor = textColor
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    if (existing != null) "Update" else "Save",
-                    color = textColor
+                    text = if (existing != null) "Update reminder" else "Save reminder",
+                    color = textColor,
+                    fontSize = 18.sp
                 )
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Secondary cancel action
             Button(
                 onClick = { onBack() },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = accentGreen)
+                modifier = Modifier
+                    .fillMaxWidth(0.75f)
+                    .align(Alignment.CenterHorizontally),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(R.color.light_accent),
+                    contentColor = textColor,
+                    disabledContainerColor = colorResource(R.color.light_accent).copy(alpha = 0.5f)
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Cancel", color = textColor)
+                Text("Cancel", fontSize = 18.sp)
             }
         }
     }

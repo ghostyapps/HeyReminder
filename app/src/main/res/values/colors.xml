@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white_background">#F6F6F6</color>
-    <color name="accent_color">#DEDEDE</color>
+    <color name="white_background">#ffffff</color>
+    <color name="accent_color">#E4E4E4</color>
     <color name="text_color">#3C3C3C</color>
     <color name="light_accent">#ABABAB</color>
+    <color name="header_background">#E4E4E4</color>
 </resources>
