@@ -27,4 +27,28 @@
       android:fillType="evenOdd"
       android:strokeColor="#000000"
       android:strokeLineCap="round"/>
+  <path
+      android:pathData="M175,191L332,191"
+      android:strokeLineJoin="round"
+      android:strokeWidth="30"
+      android:fillColor="#fc2a2a"
+      android:fillType="evenOdd"
+      android:strokeColor="#000000"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M175,269L470,269"
+      android:strokeLineJoin="round"
+      android:strokeWidth="30"
+      android:fillColor="#fc2a2a"
+      android:fillType="evenOdd"
+      android:strokeColor="#000000"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M175,354L663,354"
+      android:strokeLineJoin="round"
+      android:strokeWidth="30"
+      android:fillColor="#fc2a2a"
+      android:fillType="evenOdd"
+      android:strokeColor="#000000"
+      android:strokeLineCap="round"/>
 </vector>

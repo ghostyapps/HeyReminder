@@ -12,7 +12,7 @@
 
     <style name="Theme.ReminderApp.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/white_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/heyreminder_splash_dark</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="postSplashScreenTheme">@style/Theme.ReminderApp</item>
     </style>
 
